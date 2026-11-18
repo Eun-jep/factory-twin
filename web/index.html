@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설비 모니터링</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- importmap: 'three'라는 이름이 어느 파일을 가리키는지 브라우저에 알려 준다.
+       vendor/OrbitControls.js가 "from 'three'"라고 불러오기 때문에 필요하다. -->
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.min.js" } }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>산업 설비 모니터링</h1>
+    <div class="topbar-right">
+      <span id="clock" class="clock">--:--:--</span>
+      <span id="conn" class="badge off">연결 중</span>
+    </div>
+  </header>
+
+  <!-- 지표 띠: 서버가 계산해서 보내 준다 (가동률·생산량은 최근 10분, 나머지는 서버를 켠 뒤 누적) -->
+  <section class="kpis" aria-label="핵심 지표">
+    <div class="kpi"><span class="kpi-label">가동률 (10분)</span><span id="kpi-availability" class="kpi-value">-</span></div>
+    <div class="kpi"><span class="kpi-label">생산량 (10분)</span><span id="kpi-production" class="kpi-value">-</span></div>
+    <div class="kpi"><span class="kpi-label">통신 성공률</span><span id="kpi-comm" class="kpi-value">-</span></div>
+    <div class="kpi"><span class="kpi-label">평균 응답</span><span id="kpi-latency" class="kpi-value">-</span></div>
+    <div class="kpi"><span class="kpi-label">재접속</span><span id="kpi-reconnects" class="kpi-value">-</span></div>
+    <div class="kpi"><span class="kpi-label">열린 알람</span><span id="kpi-alarms" class="kpi-value">-</span></div>
+  </section>
+
+  <main>
+    <div class="top-grid">
+      <!-- 3D 화면: scene.js가 이 안에 캔버스를 만든다. 마우스로 돌리고 휠로 확대할 수 있다 -->
+      <section id="scene" class="panel scene" aria-label="3D 설비 화면">
+        <p id="scene-note" class="scene-note">3D 화면을 불러오는 중…</p>
+        <!-- 빛 번짐 켜고 끄기: 그래픽이 약한 PC에서 느리면 끈다 -->
+        <label class="scene-toggle" title="밝은 곳이 주변으로 번져 보이게 합니다. 느리면 끄세요.">
+          <input type="checkbox" id="bloom-toggle" checked disabled> <span id="bloom-label">빛 번짐</span>
+        </label>
+      </section>
+
+      <!-- 설비 카드: app.js가 설비마다 하나씩 만든다 -->
+      <section id="devices" class="cards" aria-label="설비 상태"></section>
+    </div>
+
+    <section class="panel" aria-label="알람">
+      <div class="panel-head">
+        <h2>열린 알람</h2>
+        <label class="operator">확인자 이름
+          <input id="operator" type="text" maxlength="20" placeholder="예: 홍길동" autocomplete="off">
+        </label>
+      </div>
+      <p id="notice" class="notice" role="status"></p>
+      <p id="no-alarms" class="muted pad">열린 알람이 없습니다.</p>
+      <div class="table-wrap">
+        <table id="alarms" hidden>
+          <thead>
+            <tr><th>등급</th><th>설비</th><th>종류</th><th>상태</th><th>횟수</th><th>값</th><th>내용</th><th>확인</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="two-col">
+      <div class="stack">
+        <section class="panel" aria-label="온도 추이">
+          <div class="panel-head">
+            <h2>온도 추이</h2>
+            <div class="controls">
+              <select id="chart-device" aria-label="차트 설비"></select>
+              <select id="chart-minutes" aria-label="차트 기간">
+                <option value="5">5분</option>
+                <option value="10" selected>10분</option>
+                <option value="60">60분</option>
+              </select>
+            </div>
+          </div>
+          <canvas id="chart" class="chart" aria-label="온도 차트"></canvas>
+          <p id="chart-note" class="muted small pad"></p>
+        </section>
+      <section class="panel" aria-label="통신 이벤트">
+        <div class="panel-head"><h2>통신 이벤트</h2></div>
+        <ul id="events" class="events"></ul>
+      </section>
+      </div>
+
+      <section class="panel" aria-label="패킷 뷰어">
+        <div class="panel-head">
+          <h2>통신 패킷 (Modbus TCP)</h2>
+          <div class="controls">
+            <select id="packet-device" aria-label="패킷 설비"></select>
+            <select id="packet-mode" aria-label="패킷 종류">
+              <option value="last">마지막 정상</option>
+              <option value="last_failed">마지막 실패</option>
+            </select>
+          </div>
+        </div>
+        <div id="packet" class="packet"><p class="muted pad">아직 주고받은 패킷이 없습니다.</p></div>
+      </section>
+    </div>
+
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# 실행하면 생기는 파일 (수집 서버가 data/ 폴더를 알아서 만든다)
+data/
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
+
+# 연습용으로 만든 화면 사본 (web/과 같은 내용이라 올릴 필요 없음)
+web_backup/
+
+# C# 보관본의 빌드 산출물 (소스만 남긴다. 산출물에는 이 PC의 계정 이름이 들어 있다)
+archive/**/obj/
+archive/**/bin/
+
+# 편집기·운영체제가 만드는 파일
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
