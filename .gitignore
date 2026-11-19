@@ -17,3 +17,5 @@ archive/**/bin/
 .idea/
 Thumbs.db
 .DS_Store
+
+portfolio/
